@@ -10,22 +10,22 @@ import (
 	"os/signal"
 )
 
-const (
-	port = 50000
-)
-
 var (
-	logger = log.New(os.Stdout, "logger: ", log.Lshortfile)
+	logger = log.New(os.Stdout, "logger: ", log.Ldate | log.Ltime | log.Lshortfile)
 )
 
 func main() {
+	port := os.Getenv("FINAL_SCENES_PORT")
+	if port == "" {
+		logger.Fatal("FINAL_SCENES_PORT environment variable missing.")
+	}
 	mux := http.NewServeMux()
 
 	fs := http.FileServer(http.Dir("./www"))
 	mux.Handle("/", LogWrapper(fs))
 
 	srv := &http.Server{
-		Addr:     fmt.Sprintf("0.0.0.0:%d", port),
+		Addr:     fmt.Sprintf("0.0.0.0:%s", port),
 		Handler:  mux,
 		ErrorLog: logger,
 	}

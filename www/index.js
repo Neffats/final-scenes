@@ -14,10 +14,10 @@ window.onload = (event) => {
 	document.getElementById("q1_clue2_btn").addEventListener('click', function(event) {
 		let clue = document.getElementById("q1_clue2_div");
 		if (clue.hidden) {
-			document.getElementById("q1_clue2_btn").innerHTML = "Hide Clue #1";
+			document.getElementById("q1_clue2_btn").innerHTML = "Hide Clue #2";
 			clue.hidden = false;
 		} else {
-			document.getElementById("q1_clue2_btn").innerHTML = "Show Clue #1";
+			document.getElementById("q1_clue2_btn").innerHTML = "Show Clue #2";
 			clue.hidden = true;
 		}
 	});
@@ -37,10 +37,10 @@ window.onload = (event) => {
 	document.getElementById("q2_clue2_btn").addEventListener('click', function(event) {
 		let clue = document.getElementById("q2_clue2_div");
 		if (clue.hidden) {
-			document.getElementById("q2_clue2_btn").innerHTML = "Hide Clue #1";
+			document.getElementById("q2_clue2_btn").innerHTML = "Hide Clue #2";
 			clue.hidden = false;
 		} else {
-			document.getElementById("q2_clue2_btn").innerHTML = "Show Clue #1";
+			document.getElementById("q2_clue2_btn").innerHTML = "Show Clue #2";
 			clue.hidden = true;
 		}
 	});
@@ -60,10 +60,10 @@ window.onload = (event) => {
 	document.getElementById("q3_clue2_btn").addEventListener('click', function(event) {
 		let clue = document.getElementById("q3_clue2_div");
 		if (clue.hidden) {
-			document.getElementById("q3_clue2_btn").innerHTML = "Hide Clue #1";
+			document.getElementById("q3_clue2_btn").innerHTML = "Hide Clue #2";
 			clue.hidden = false;
 		} else {
-			document.getElementById("q3_clue2_btn").innerHTML = "Show Clue #1";
+			document.getElementById("q3_clue2_btn").innerHTML = "Show Clue #2";
 			clue.hidden = true;
 		}
 	});
@@ -83,10 +83,10 @@ window.onload = (event) => {
 	document.getElementById("q4_clue2_btn").addEventListener('click', function(event) {
 		let clue = document.getElementById("q4_clue2_div");
 		if (clue.hidden) {
-			document.getElementById("q4_clue2_btn").innerHTML = "Hide Clue #1";
+			document.getElementById("q4_clue2_btn").innerHTML = "Hide Clue #2";
 			clue.hidden = false;
 		} else {
-			document.getElementById("q4_clue2_btn").innerHTML = "Show Clue #1";
+			document.getElementById("q4_clue2_btn").innerHTML = "Show Clue #2";
 			clue.hidden = true;
 		}
 	});
@@ -106,10 +106,10 @@ window.onload = (event) => {
 	document.getElementById("q5_clue2_btn").addEventListener('click', function(event) {
 		let clue = document.getElementById("q5_clue2_div");
 		if (clue.hidden) {
-			document.getElementById("q5_clue2_btn").innerHTML = "Hide Clue #1";
+			document.getElementById("q5_clue2_btn").innerHTML = "Hide Clue #2";
 			clue.hidden = false;
 		} else {
-			document.getElementById("q5_clue2_btn").innerHTML = "Show Clue #1";
+			document.getElementById("q5_clue2_btn").innerHTML = "Show Clue #2";
 			clue.hidden = true;
 		}
 	});
