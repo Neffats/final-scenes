@@ -56,3 +56,23 @@ func LogWrapper(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+type GuessAttempt struct {
+	Question string `json:"question"`
+	Guess    string `json:"guess"`
+}
+
+func HandleGuess(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Only POST requests are supported", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var guess GuessAttempt
+	err := json.NewReader(r.Body).Decode(&guess)
+	if err != nil {
+		logger.Errorf("failed to unmarshal guess: %v", err)
+		http.Error(w, "something went wring", http.StatusInternalServerError)
+	}
+}
+
