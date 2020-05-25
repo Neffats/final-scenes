@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<head>
+	<title>Final Scenes</title>
+	<link rel="stylesheet" href="/index.css">
+	<script>
+	window.onload = (event) => {
+		{{range .}}
+		document.getElementById("{{.Hash}}_clue1_btn")
+			.addEventListener('click', function(event) {
+				let clue = document.getElementById("{{.Hash}}_clue1_div");
+				if (clue.hidden) {
+					document.getElementById("{{.Hash}}_clue1_btn")
+						.innerHTML = "Hide Clue #1";
+					clue.hidden = false;
+				} else {
+					document.getElementById("{{.Hash}}_clue1_btn")
+						.innerHTML = "Show Clue #1";
+					clue.hidden = true;
+
+				}
+			});
+		document.getElementById("{{.Hash}}_clue2_btn")
+			.addEventListener('click', function(event) {
+				let clue = document.getElementById("{{.Hash}}_clue2_div");
+				if (clue.hidden) {
+					document.getElementById("{{.Hash}}_clue2_btn")
+						.innerHTML = "Hide Clue #2";
+					clue.hidden = false;
+				} else {
+					document.getElementById("{{.Hash}}_clue2_btn")
+						.innerHTML = "Show Clue #2";
+					clue.hidden = true;
+
+				}
+			});
+		{{end}}
+	}
+	</script>
+</head>
+<body>
+	<h1>Final Scenes</h1>
+	<div class="container">
+	{{range $index, $scene := .}} <div id="{{$scene.Hash}}_div">
+		<h2>Final Scene #{{inc $index}}</h2>
+		<audio controls>
+			<source src="/{{$scene.AudioFile}}" type="audio/wav">
+		</audio>
+
+		<button id="{{$scene.Hash}}_clue1_btn">Show Clue #1</button>
+		<div id="{{$scene.Hash}}_clue1_div" hidden>
+			<h3>Clue #1</h3>
+			<p>Year of release: <b>{{.Year}}</b></p>
+		</div>
+
+		<button id="{{$scene.Hash}}_clue2_btn">Show Clue #2</button>
+		<div id="{{$scene.Hash}}_clue2_div" hidden>
+			<h3>Clue #2</h3>
+			<img src="/{{$scene.ImageFile}}">
+		</div>
+	</div>
+	{{end}}
+	</div>
+</body>
