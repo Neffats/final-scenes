@@ -14,9 +14,8 @@ import (
 )
 
 var (
-	logger = log.New(os.Stdout, "logger: ", log.Ldate | log.Ltime | log.Lshortfile)
+	logger = log.New(os.Stdout, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
 )
-
 
 func main() {
 	port := os.Getenv("FINAL_SCENES_PORT")
@@ -71,9 +70,10 @@ func LogWrapperHF(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r)
 	})
 }
+
 type GuessAttempt struct {
-	QuestionHash string `json:"question"`
-	Guess    string `json:"guess"`
+	Question     string `json:"question"`
+	Guess        string `json:"guess"`
 }
 
 type GuessResponse struct {
@@ -104,7 +104,7 @@ func HandleGuess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hashedGuess := fmt.Sprintf("%x", sha256.Sum256([]byte(guess.Guess)))
-	if hashedGuess == guess.QuestionHash {
+	if hashedGuess == guess.Question {
 		resp.Answer = true
 	} else {
 		resp.Answer = false
@@ -122,11 +122,11 @@ func HandleGuess(w http.ResponseWriter, r *http.Request) {
 }
 
 type FinalScene struct {
-	Name string
+	Name      string
 	AudioFile string
-	Year string
+	Year      string
 	ImageFile string
-	Hash string
+	Hash      string
 }
 
 func HandleTemplate(w http.ResponseWriter, r *http.Request) {
@@ -144,18 +144,18 @@ func HandleTemplate(w http.ResponseWriter, r *http.Request) {
 	// Test data
 	scenes := make([]FinalScene, 0)
 	casablanca := FinalScene{
-		Name: "Casablanca",
+		Name:      "Casablanca",
 		AudioFile: "audio/sound1.wav",
-		Year: "1942",
+		Year:      "1942",
 		ImageFile: "images/picture1.png",
-		Hash: fmt.Sprintf("%x", sha256.Sum256([]byte("Casablanca"))),
+		Hash:      fmt.Sprintf("%x", sha256.Sum256([]byte("Casablanca"))),
 	}
 	psycho := FinalScene{
-		Name: "Psycho",
+		Name:      "Psycho",
 		AudioFile: "audio/sound2.wav",
-		Year: "1960",
+		Year:      "1960",
 		ImageFile: "images/picture2.png",
-		Hash: fmt.Sprintf("%x", sha256.Sum256([]byte("Psycho"))),
+		Hash:      fmt.Sprintf("%x", sha256.Sum256([]byte("Psycho"))),
 	}
 
 	scenes = append(scenes, casablanca)
