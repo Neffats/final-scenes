@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -19,6 +21,17 @@ var (
 )
 
 func main() {
+	store := NewStore("scenes.json")
+	err := store.Init()
+	if err != nil {
+		logger.Fatalf("failed to initialise scene store: %v", err)
+	}
+	fmt.Printf("+v", store.Scenes)
+
+	h := &HTTPHandler{
+		Scenes: store,
+	}
+
 	port := os.Getenv("FINAL_SCENES_PORT")
 	if port == "" {
 		logger.Fatal("FINAL_SCENES_PORT environment variable missing.")
@@ -27,8 +40,8 @@ func main() {
 
 	fs := http.FileServer(http.Dir("./www"))
 	mux.Handle("/static/", LogWrapper(http.StripPrefix("/static/", fs)))
-	mux.HandleFunc("/guess/", LogWrapperHF(HandleGuess))
-	mux.HandleFunc("/", LogWrapperHF(HandleTemplate))
+	mux.HandleFunc("/guess/", LogWrapperHF(h.HandleGuess))
+	mux.HandleFunc("/", LogWrapperHF(h.HandleTemplate))
 
 	srv := &http.Server{
 		Addr:     fmt.Sprintf("0.0.0.0:%s", port),
@@ -49,11 +62,15 @@ func main() {
 	}()
 
 	log.Println("listening....")
-	if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+	if err = srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		logger.Fatalf("HTTP server ListenAndServe: %v", err)
 	}
 
 	<-idleConnsClosed
+}
+
+type HTTPHandler struct {
+	Scenes *SceneStore
 }
 
 func LogWrapper(next http.Handler) http.Handler {
@@ -81,7 +98,7 @@ type GuessResponse struct {
 	Answer bool `json:"answer"`
 }
 
-func HandleGuess(w http.ResponseWriter, r *http.Request) {
+func (h *HTTPHandler) HandleGuess(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		logger.Printf("received bad guess request: unsupported method: %s\n", r.Method)
 		http.Error(w, "Only POST requests are supported", http.StatusMethodNotAllowed)
@@ -130,7 +147,43 @@ type FinalScene struct {
 	Hash      string
 }
 
-func HandleTemplate(w http.ResponseWriter, r *http.Request) {
+func (fs *FinalScene) UnmarshalJSON(data []byte) error {
+	var scene map[string]string
+	err := json.Unmarshal(data, &scene)
+	if err != nil {
+		return err
+	}
+
+	name, ok := scene["Name"]
+	if !ok {
+		return fmt.Errorf("failed to unmarshal data: missing field 'Name'")
+	}
+
+	audioFile, ok := scene["AudioFile"]
+	if !ok {
+		return fmt.Errorf("failed to unmarshal data: missing field 'AudioFile'")
+	}
+	year, ok := scene["Year"]
+	if !ok {
+		return fmt.Errorf("failed to unmarshal data: missing field 'Year'")
+	}
+	imageFile, ok := scene["ImageFile"]
+	if !ok {
+		return fmt.Errorf("failed to unmarshal data: missing field 'ImageFile'")
+	}
+	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(strings.ToLower(name))))
+
+	fs.Name = name
+	fs.AudioFile = audioFile
+	fs.Year = year
+	fs.ImageFile = imageFile
+	fs.Hash = hash
+
+
+	return nil
+}
+
+func (h *HTTPHandler) HandleTemplate(w http.ResponseWriter, r *http.Request) {
 	t, err := template.New("index.gohtml").Funcs(template.FuncMap{
 		"inc": func(x int) int {
 			return x + 1
@@ -142,30 +195,45 @@ func HandleTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Test data
-	scenes := make([]FinalScene, 0)
-	casablanca := FinalScene{
-		Name:      "Casablanca",
-		AudioFile: "audio/sound1.wav",
-		Year:      "1942",
-		ImageFile: "images/picture1.png",
-		Hash:      fmt.Sprintf("%x", sha256.Sum256([]byte(strings.ToLower("Casablanca")))),
-	}
-	psycho := FinalScene{
-		Name:      "Psycho",
-		AudioFile: "audio/sound2.wav",
-		Year:      "1960",
-		ImageFile: "images/picture2.png",
-		Hash:      fmt.Sprintf("%x", sha256.Sum256([]byte(strings.ToLower("Psycho")))),
-	}
-
-	scenes = append(scenes, casablanca)
-	scenes = append(scenes, psycho)
-
+	scenes := h.Scenes.All()
 	err = t.Execute(w, scenes)
 	if err != nil {
 		logger.Printf("failed to execute template file: %v\n", err)
 		http.Error(w, "something went wrong", http.StatusInternalServerError)
 		return
 	}
+}
+
+type SceneStore struct {
+	Scenes []FinalScene `json:"scenes"`
+	source string
+}
+
+func NewStore(filename string) *SceneStore {
+	return &SceneStore{
+		Scenes: make([]FinalScene, 0),
+		source: filename,
+	}
+}
+
+func (s *SceneStore) Init() error {
+	f, err := ioutil.ReadFile(s.source)
+	if err != nil {
+		return fmt.Errorf("failed to open store source: %v", err)
+	}
+
+	err = json.Unmarshal(f, &s)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal source data: %v", err)
+	}
+	return nil
+}
+
+func (s *SceneStore) Random() FinalScene {
+	index := rand.Intn(len(s.Scenes))
+	return s.Scenes[index]
+}
+
+func (s *SceneStore) All() []FinalScene {
+	return s.Scenes
 }

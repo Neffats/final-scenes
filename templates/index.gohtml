@@ -47,7 +47,7 @@
 	}
 
 	window.onload = (event) => {
-		{{range .}}
+		{{range .}} 
 		document.getElementById("{{.Hash}}_hint1_btn")
 			.addEventListener('click', function(event) {
 				let hint = document.getElementById("{{.Hash}}_hint1_div");
@@ -81,7 +81,7 @@
 				let guess = document.getElementById("{{.Hash}}_input").value;
 				checkGuess("{{.Hash}}", guess);
 			});
-		{{end}}
+	{{end}}
 	}
 	</script>
 </head>
