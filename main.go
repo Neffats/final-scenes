@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 )
 
 var (
@@ -103,7 +104,7 @@ func HandleGuess(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "something went wrong", http.StatusInternalServerError)
 		return
 	}
-	hashedGuess := fmt.Sprintf("%x", sha256.Sum256([]byte(guess.Guess)))
+	hashedGuess := fmt.Sprintf("%x", sha256.Sum256([]byte(strings.ToLower(guess.Guess))))
 	if hashedGuess == guess.Question {
 		resp.Answer = true
 	} else {
@@ -148,14 +149,14 @@ func HandleTemplate(w http.ResponseWriter, r *http.Request) {
 		AudioFile: "audio/sound1.wav",
 		Year:      "1942",
 		ImageFile: "images/picture1.png",
-		Hash:      fmt.Sprintf("%x", sha256.Sum256([]byte("Casablanca"))),
+		Hash:      fmt.Sprintf("%x", sha256.Sum256([]byte(strings.ToLower("Casablanca")))),
 	}
 	psycho := FinalScene{
 		Name:      "Psycho",
 		AudioFile: "audio/sound2.wav",
 		Year:      "1960",
 		ImageFile: "images/picture2.png",
-		Hash:      fmt.Sprintf("%x", sha256.Sum256([]byte("Psycho"))),
+		Hash:      fmt.Sprintf("%x", sha256.Sum256([]byte(strings.ToLower("Psycho")))),
 	}
 
 	scenes = append(scenes, casablanca)

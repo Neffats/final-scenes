@@ -8,7 +8,11 @@
 		req.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
 				let resp = JSON.parse(this.responseText);
-				console.log(resp);
+				if (resp.answer == true) {
+					correctAnswerAnimation(question);
+				} else {
+					wrongAnswerAnimation(question);
+				}
 			}
 		}
 		req.open("POST", "/guess/");
@@ -18,6 +22,28 @@
 			guess: guess,
 		});
 		req.send(json);
+	}
+	function correctAnswerAnimation(question) {
+		answerBox = document.getElementById(question.concat("_input"));
+		answerBtn = document.getElementById(question.concat("_input_btn"));
+		answerBox.disabled = true;
+		answerBox.style.backgroundColor = "#73d46a";
+		answerBox.value = answerBox.value.concat(" - Correct!");
+		answerBtn.disabled = true;
+	}
+	function wrongAnswerAnimation(question) {
+		answerBox = document.getElementById(question.concat("_input"));
+		answerBox.style.backgroundColor = "#f58989";
+		answerBox.value = answerBox.value.concat(" - Wrong!");
+		setTimeout(function(){
+			resetWrongAnswer(question);
+		}, 950);
+	}
+	function resetWrongAnswer(question) {
+		answerBox = document.getElementById(question.concat("_input"));
+		answerBox.style.backgroundColor = "white";
+		answerBox.placeholder = "Answer...";
+		answerBox.value = "";
 	}
 
 	window.onload = (event) => {
@@ -53,8 +79,7 @@
 		document.getElementById("{{.Hash}}_input_btn")
 			.addEventListener('click', function(event) {
 				let guess = document.getElementById("{{.Hash}}_input").value;
-				console.log(guess);
-				let correct = checkGuess("{{.Hash}}", guess);
+				checkGuess("{{.Hash}}", guess);
 			});
 		{{end}}
 	}
@@ -76,14 +101,12 @@
 
 		<button id="{{$scene.Hash}}_hint1_btn">Show Hint #1</button>
 		<div id="{{$scene.Hash}}_hint1_div" hidden>
-			<h3>Hint #1</h3>
 			<p>Year of release: <b>{{$scene.Year}}</b></p>
 		</div>
 
 		<button id="{{$scene.Hash}}_hint2_btn">Show Hint #2</button>
 		<div id="{{$scene.Hash}}_hint2_div" hidden>
-			<h3>Hint #2</h3>
-			<img src="/static/{{$scene.ImageFile}}">
+			<img src="/static/{{$scene.ImageFile}}" style="width:50%;height:50%;">
 		</div>
 	</div>
 	{{end}}
