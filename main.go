@@ -40,8 +40,8 @@ func main() {
 
 	fs := http.FileServer(http.Dir("./www"))
 	mux.Handle("/static/", LogWrapper(http.StripPrefix("/static/", fs)))
-	mux.HandleFunc("/guess/", LogWrapperHF(h.HandleGuess))
-	mux.HandleFunc("/", LogWrapperHF(h.HandleTemplate))
+	mux.Handle("/guess/", LogWrapper(http.HandlerFunc(h.HandleGuess)))
+	mux.Handle("/", LogWrapper(http.HandlerFunc(h.HandleTemplate)))
 
 	srv := &http.Server{
 		Addr:     fmt.Sprintf("0.0.0.0:%s", port),
@@ -74,14 +74,6 @@ type HTTPHandler struct {
 }
 
 func LogWrapper(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logger.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
-		// Our middleware logic goes here...
-		next.ServeHTTP(w, r)
-	})
-}
-
-func LogWrapperHF(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
 		// Our middleware logic goes here...
