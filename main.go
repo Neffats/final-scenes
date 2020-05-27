@@ -14,6 +14,8 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+
+	"github.com/Neffats/finalscenes/models"
 )
 
 var (
@@ -21,10 +23,10 @@ var (
 )
 
 func main() {
-	store := NewStore("scenes.json")
+	store := NewFilmStore("scenes.json")
 	err := store.Init()
 	if err != nil {
-		logger.Fatalf("failed to initialise scene store: %v", err)
+		logger.Fatalf("failed to initialise film store: %v", err)
 	}
 	fmt.Printf("+v", store.Scenes)
 
@@ -70,7 +72,7 @@ func main() {
 }
 
 type HTTPHandler struct {
-	Scenes *SceneStore
+	Films *FilmStore
 }
 
 func LogWrapper(next http.Handler) http.Handler {
@@ -79,15 +81,6 @@ func LogWrapper(next http.Handler) http.Handler {
 		// Our middleware logic goes here...
 		next.ServeHTTP(w, r)
 	})
-}
-
-type GuessAttempt struct {
-	Question     string `json:"question"`
-	Guess        string `json:"guess"`
-}
-
-type GuessResponse struct {
-	Answer bool `json:"answer"`
 }
 
 func (h *HTTPHandler) HandleGuess(w http.ResponseWriter, r *http.Request) {
@@ -104,8 +97,8 @@ func (h *HTTPHandler) HandleGuess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var guess GuessAttempt
-	var resp GuessResponse
+	var guess models.GuessAttempt
+	var resp models.GuessResponse
 
 	err := json.NewDecoder(r.Body).Decode(&guess)
 	if err != nil {
@@ -131,49 +124,6 @@ func (h *HTTPHandler) HandleGuess(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-type FinalScene struct {
-	Name      string
-	AudioFile string
-	Year      string
-	ImageFile string
-	Hash      string
-}
-
-func (fs *FinalScene) UnmarshalJSON(data []byte) error {
-	var scene map[string]string
-	err := json.Unmarshal(data, &scene)
-	if err != nil {
-		return err
-	}
-
-	name, ok := scene["Name"]
-	if !ok {
-		return fmt.Errorf("failed to unmarshal data: missing field 'Name'")
-	}
-
-	audioFile, ok := scene["AudioFile"]
-	if !ok {
-		return fmt.Errorf("failed to unmarshal data: missing field 'AudioFile'")
-	}
-	year, ok := scene["Year"]
-	if !ok {
-		return fmt.Errorf("failed to unmarshal data: missing field 'Year'")
-	}
-	imageFile, ok := scene["ImageFile"]
-	if !ok {
-		return fmt.Errorf("failed to unmarshal data: missing field 'ImageFile'")
-	}
-	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(strings.ToLower(name))))
-
-	fs.Name = name
-	fs.AudioFile = audioFile
-	fs.Year = year
-	fs.ImageFile = imageFile
-	fs.Hash = hash
-
-
-	return nil
-}
 
 func (h *HTTPHandler) HandleTemplate(w http.ResponseWriter, r *http.Request) {
 	t, err := template.New("index.gohtml").Funcs(template.FuncMap{
@@ -187,8 +137,8 @@ func (h *HTTPHandler) HandleTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	scenes := h.Scenes.All()
-	err = t.Execute(w, scenes)
+	films := h.Films.All()
+	err = t.Execute(w, films)
 	if err != nil {
 		logger.Printf("failed to execute template file: %v\n", err)
 		http.Error(w, "something went wrong", http.StatusInternalServerError)
@@ -196,19 +146,19 @@ func (h *HTTPHandler) HandleTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type SceneStore struct {
-	Scenes []FinalScene `json:"scenes"`
+type FilmStore struct {
+	Films []models.Film `json:"films"`
 	source string
 }
 
-func NewStore(filename string) *SceneStore {
-	return &SceneStore{
-		Scenes: make([]FinalScene, 0),
+func NewStore(filename string) *FilmStore {
+	return &FilmStore{
+		Films: make([]models.Film, 0),
 		source: filename,
 	}
 }
 
-func (s *SceneStore) Init() error {
+func (s *FilmStore) Init() error {
 	f, err := ioutil.ReadFile(s.source)
 	if err != nil {
 		return fmt.Errorf("failed to open store source: %v", err)
@@ -221,11 +171,11 @@ func (s *SceneStore) Init() error {
 	return nil
 }
 
-func (s *SceneStore) Random() FinalScene {
-	index := rand.Intn(len(s.Scenes))
-	return s.Scenes[index]
+func (s *FilmStore) Random() Film {
+	index := rand.Intn(len(s.Films))
+	return s.Films[index]
 }
 
-func (s *SceneStore) All() []FinalScene {
-	return s.Scenes
+func (s *FilmStore) All() []Film {
+	return s.Films
 }
