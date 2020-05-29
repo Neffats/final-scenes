@@ -15,7 +15,7 @@ import (
 	"os/signal"
 	"strings"
 
-	"github.com/Neffats/finalscenes/models"
+	"github.com/Neffats/final-scenes/models"
 )
 
 var (
@@ -23,15 +23,14 @@ var (
 )
 
 func main() {
-	store := NewFilmStore("scenes.json")
+	store := NewStore("films.json")
 	err := store.Init()
 	if err != nil {
 		logger.Fatalf("failed to initialise film store: %v", err)
 	}
-	fmt.Printf("+v", store.Scenes)
 
 	h := &HTTPHandler{
-		Scenes: store,
+		Films: store,
 	}
 
 	port := os.Getenv("FINAL_SCENES_PORT")
@@ -124,7 +123,6 @@ func (h *HTTPHandler) HandleGuess(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-
 func (h *HTTPHandler) HandleTemplate(w http.ResponseWriter, r *http.Request) {
 	t, err := template.New("index.gohtml").Funcs(template.FuncMap{
 		"inc": func(x int) int {
@@ -147,13 +145,13 @@ func (h *HTTPHandler) HandleTemplate(w http.ResponseWriter, r *http.Request) {
 }
 
 type FilmStore struct {
-	Films []models.Film `json:"films"`
+	Films  []models.Film `json:"films"`
 	source string
 }
 
 func NewStore(filename string) *FilmStore {
 	return &FilmStore{
-		Films: make([]models.Film, 0),
+		Films:  make([]models.Film, 0),
 		source: filename,
 	}
 }
@@ -171,11 +169,11 @@ func (s *FilmStore) Init() error {
 	return nil
 }
 
-func (s *FilmStore) Random() Film {
+func (s *FilmStore) Random() models.Film {
 	index := rand.Intn(len(s.Films))
 	return s.Films[index]
 }
 
-func (s *FilmStore) All() []Film {
+func (s *FilmStore) All() []models.Film {
 	return s.Films
 }

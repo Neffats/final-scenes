@@ -1,8 +1,10 @@
 package models
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type Film struct {
@@ -44,7 +46,6 @@ func (fs *Film) UnmarshalJSON(data []byte) error {
 	fs.Year = year
 	fs.ImageFile = imageFile
 	fs.Hash = hash
-
 
 	return nil
 }
