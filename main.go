@@ -14,11 +14,9 @@ import (
 	"github.com/Neffats/final-scenes/stores"
 )
 
-var (
-	logger = log.New(os.Stdout, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
-)
-
 func main() {
+	logger := log.New(os.Stdout, "logger: ", log.Ldate|log.Ltime|log.Lshortfile)
+
 	store := stores.NewFilmStore("films.json")
 	err := store.Init()
 	if err != nil {
@@ -37,6 +35,7 @@ func main() {
 	if port == "" {
 		logger.Fatal("FINAL_SCENES_PORT environment variable missing.")
 	}
+
 	mux := http.NewServeMux()
 
 	fs := http.FileServer(http.Dir("./www"))
