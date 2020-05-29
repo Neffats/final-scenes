@@ -10,6 +10,7 @@ import (
 	"os/signal"
 
 	"github.com/Neffats/final-scenes/handlers"
+	"github.com/Neffats/final-scenes/middleware"
 	"github.com/Neffats/final-scenes/stores"
 )
 
@@ -28,6 +29,9 @@ func main() {
 		Films:  store,
 		Logger: logger,
 	}
+	l := &middleware.LogWrapper{
+		Logger: logger,
+	}
 
 	port := os.Getenv("FINAL_SCENES_PORT")
 	if port == "" {
@@ -36,9 +40,9 @@ func main() {
 	mux := http.NewServeMux()
 
 	fs := http.FileServer(http.Dir("./www"))
-	mux.Handle("/static/", LogWrapper(http.StripPrefix("/static/", fs)))
-	mux.Handle("/guess/", LogWrapper(http.HandlerFunc(h.HandleGuess)))
-	mux.Handle("/", LogWrapper(http.HandlerFunc(h.HandleTemplate)))
+	mux.Handle("/static/", l.Wrap(http.StripPrefix("/static/", fs)))
+	mux.Handle("/guess/", l.Wrap(http.HandlerFunc(h.HandleGuess)))
+	mux.Handle("/", l.Wrap(http.HandlerFunc(h.HandleTemplate)))
 
 	srv := &http.Server{
 		Addr:     fmt.Sprintf("0.0.0.0:%s", port),
@@ -53,23 +57,15 @@ func main() {
 		<-sigint
 
 		if err := srv.Shutdown(context.Background()); err != nil {
-			logger.Printf("HTTP server Shutdown: %v", err)
+			logger.Printf("HTTP server Shutdown: %v\n", err)
 		}
 		close(idleConnsClosed)
 	}()
 
-	log.Println("listening....")
+	logger.Println("listening....")
 	if err = srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-		logger.Fatalf("HTTP server ListenAndServe: %v", err)
+		logger.Fatalf("HTTP server ListenAndServe: %v\n", err)
 	}
 
 	<-idleConnsClosed
-}
-
-func LogWrapper(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logger.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
-		// Our middleware logic goes here...
-		next.ServeHTTP(w, r)
-	})
 }
