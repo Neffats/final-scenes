@@ -7,15 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 
 	"github.com/Neffats/final-scenes/models"
+	"github.com/Neffats/final-scenes/stores"
 )
 
 var (
@@ -23,7 +22,7 @@ var (
 )
 
 func main() {
-	store := NewStore("films.json")
+	store := stores.NewFilmStore("films.json")
 	err := store.Init()
 	if err != nil {
 		logger.Fatalf("failed to initialise film store: %v", err)
@@ -71,7 +70,7 @@ func main() {
 }
 
 type HTTPHandler struct {
-	Films *FilmStore
+	Films *stores.FilmStore
 }
 
 func LogWrapper(next http.Handler) http.Handler {
@@ -142,38 +141,4 @@ func (h *HTTPHandler) HandleTemplate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "something went wrong", http.StatusInternalServerError)
 		return
 	}
-}
-
-type FilmStore struct {
-	Films  []models.Film `json:"films"`
-	source string
-}
-
-func NewStore(filename string) *FilmStore {
-	return &FilmStore{
-		Films:  make([]models.Film, 0),
-		source: filename,
-	}
-}
-
-func (s *FilmStore) Init() error {
-	f, err := ioutil.ReadFile(s.source)
-	if err != nil {
-		return fmt.Errorf("failed to open store source: %v", err)
-	}
-
-	err = json.Unmarshal(f, &s)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal source data: %v", err)
-	}
-	return nil
-}
-
-func (s *FilmStore) Random() models.Film {
-	index := rand.Intn(len(s.Films))
-	return s.Films[index]
-}
-
-func (s *FilmStore) All() []models.Film {
-	return s.Films
 }
