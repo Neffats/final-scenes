@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<head>
+	<title>Final Scenes</title>
+	<link rel="stylesheet" href="/static/index.css">
+	<script>
+	function checkGuess(question, guess) {
+		let req = new XMLHttpRequest();
+		req.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				let resp = JSON.parse(this.responseText);
+				if (resp.answer == true) {
+					correctAnswerAnimation(question);
+				} else {
+					wrongAnswerAnimation(question);
+				}
+			}
+		}
+		req.open("POST", "/guess/");
+		req.setRequestHeader('Content-Type', 'application/json');
+		let json = JSON.stringify({
+			question: question,
+			guess: guess,
+		});
+		req.send(json);
+	}
+	function correctAnswerAnimation(question) {
+		answerBox = document.getElementById(question.concat("_input"));
+		answerBtn = document.getElementById(question.concat("_input_btn"));
+		answerBox.disabled = true;
+		answerBox.style.backgroundColor = "#73d46a";
+		answerBox.value = answerBox.value.concat(" - Correct!");
+		answerBtn.disabled = true;
+	}
+	function wrongAnswerAnimation(question) {
+		answerBox = document.getElementById(question.concat("_input"));
+		answerBox.style.backgroundColor = "#f58989";
+		answerBox.value = answerBox.value.concat(" - Wrong!");
+		setTimeout(function(){
+			resetWrongAnswer(question);
+		}, 950);
+	}
+	function resetWrongAnswer(question) {
+		answerBox = document.getElementById(question.concat("_input"));
+		answerBox.style.backgroundColor = "white";
+		answerBox.placeholder = "Answer...";
+		answerBox.value = "";
+	}
+
+	window.onload = (event) => {
+		{{range .}} 
+		document.getElementById("{{.Hash}}_hint1_btn")
+			.addEventListener('click', function(event) {
+				let hint = document.getElementById("{{.Hash}}_hint1_div");
+				if (hint.hidden) {
+					document.getElementById("{{.Hash}}_hint1_btn")
+						.innerHTML = "Hide Hint #1";
+					hint.hidden = false;
+				} else {
+					document.getElementById("{{.Hash}}_hint1_btn")
+						.innerHTML = "Show Hint #1";
+					hint.hidden = true;
+
+				}
+			});
+		document.getElementById("{{.Hash}}_hint2_btn")
+			.addEventListener('click', function(event) {
+				let hint = document.getElementById("{{.Hash}}_hint2_div");
+				if (hint.hidden) {
+					document.getElementById("{{.Hash}}_hint2_btn")
+						.innerHTML = "Hide Hint #2";
+					hint.hidden = false;
+				} else {
+					document.getElementById("{{.Hash}}_hint2_btn")
+						.innerHTML = "Show Hint #2";
+					hint.hidden = true;
+
+				}
+			});
+		document.getElementById("{{.Hash}}_input_btn")
+			.addEventListener('click', function(event) {
+				let guess = document.getElementById("{{.Hash}}_input").value;
+				checkGuess("{{.Hash}}", guess);
+			});
+	{{end}}
+	}
+	</script>
+</head>
+<body>
+	<h1>Final Scenes</h1>
+	<div class="container">
+	{{range $index, $scene := .}} 
+	<div id="{{$scene.Hash}}_div">
+		<h2>Final Scene #{{inc $index}}</h2>
+		<form class="answer_form">
+			<input type="text" id="{{$scene.Hash}}_input" placeholder="Answer...">
+			<button type="button" id="{{$scene.Hash}}_input_btn">Submit</button>
+		</form>
+		<audio controls>
+			<source src="/static/{{$scene.AudioFile}}" type="audio/wav">
+		</audio>
+
+		<button id="{{$scene.Hash}}_hint1_btn">Show Hint #1</button>
+		<div id="{{$scene.Hash}}_hint1_div" hidden>
+			<p>Year of release: <b>{{$scene.Year}}</b></p>
+		</div>
+
+		<button id="{{$scene.Hash}}_hint2_btn">Show Hint #2</button>
+		<div id="{{$scene.Hash}}_hint2_div" hidden>
+			<img src="/static/{{$scene.ImageFile}}" style="width:50%;height:50%;" loading="lazy">
+		</div>
+	</div>
+	{{end}}
+	</div>
+</body>
