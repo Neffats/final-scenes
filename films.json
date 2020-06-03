@@ -4,36 +4,36 @@
 		"Name": "Casablanca",
 		"AudioFile": "audio/sound1.wav",
 		"Year": "1942",
-		"ImageFile": "images/picture1.png"
+		"ImageFile": "images/picture1.jpg"
 	},
 	{
 		"Name": "Psycho",
 		"AudioFile": "audio/sound2.wav",
 		"Year": "1960",
-		"ImageFile": "images/picture2.png"
+		"ImageFile": "images/picture2.jpg"
 	},
 	{
 		"Name": "Some Like It Hot",
 		"AudioFile": "audio/sound3.wav",
 		"Year": "1959",
-		"ImageFile": "images/picture3.png"
+		"ImageFile": "images/picture3.jpg"
 	},
 	{
 		"Name": "Sunset Boulevard",
 		"AudioFile": "audio/sound4.wav",
 		"Year": "1950",
-		"ImageFile": "images/picture4.png"
+		"ImageFile": "images/picture4.jpg"
 	},
 	{
 		"Name": "Breakfast at Tiffany's",
 		"AudioFile": "audio/sound5.wav",
 		"Year": "1961",
-		"ImageFile": "images/picture5.png"
+		"ImageFile": "images/picture5.jpg"
 	},
 	{
 		"Name": "When Harry Met Sally",
 		"AudioFile": "audio/sound6.wav",
 		"Year": "1989",
-		"ImageFile": "images/picture6.png"
+		"ImageFile": "images/picture6.jpg"
 	}
 ]}
