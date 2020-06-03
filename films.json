@@ -29,5 +29,11 @@
 		"AudioFile": "audio/sound5.wav",
 		"Year": "1961",
 		"ImageFile": "images/picture5.png"
+	},
+	{
+		"Name": "When Harry Met Sally",
+		"AudioFile": "audio/sound6.wav",
+		"Year": "1989",
+		"ImageFile": "images/picture6.png"
 	}
 ]}
