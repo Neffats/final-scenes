@@ -8,11 +8,11 @@ import (
 )
 
 type Film struct {
-	Name      string
-	AudioFile string
-	Year      string
-	ImageFile string
-	Hash      string
+	Name      string `json:"Name"`
+	AudioFile string `json:"AudioFile"`
+	Year      string `json:"Year"`
+	ImageFile string `json:"ImageFile"`
+	Hash      string `json:"Hash,omitempty"`
 }
 
 func (fs *Film) UnmarshalJSON(data []byte) error {
