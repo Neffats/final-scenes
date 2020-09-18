@@ -9,6 +9,14 @@ import (
 	"github.com/Neffats/final-scenes/models"
 )
 
+type FilmNotFoundError struct {
+	Message string
+}
+
+func (e *FilmNotFoundError) Error() string {
+	return fmt.Sprintf("film not found: %s", s.Film, s.Message)
+}
+
 type FilmStore struct {
 	Films  []models.Film `json:"films"`
 	source string
@@ -41,4 +49,27 @@ func (s *FilmStore) Random() models.Film {
 
 func (s *FilmStore) All() []models.Film {
 	return s.Films
+}
+
+type findFunc func(film models.Film) bool
+
+func (s *FilmStore) Find(match findFunc) (models.Film, error) {
+	for _, film := range s.Fims {
+		if match(film) {
+			return film, nil
+		}
+	}
+	return models.Film{}, FilmNotFoundError{Message: "film not found in store"}
+}
+
+func ByHash(hash string) findFunc {
+	return func(film models.Film) bool {
+		return film.Hash == hash
+	}
+}
+
+func ByName(name string) findFunc {
+	return func(film models.Film) bool {
+		return film.Name == name
+	}
 }
