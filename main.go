@@ -41,6 +41,7 @@ func main() {
 	fs := http.FileServer(http.Dir("./www"))
 	mux.Handle("/static/", l.Wrap(http.StripPrefix("/static/", fs)))
 	mux.Handle("/guess/", l.Wrap(http.HandlerFunc(h.HandleGuess)))
+	mux.Handle("/give-up/", l.Wrap(http.HandlerFunc(h.HandleGiveUp)))
 	mux.Handle("/", l.Wrap(http.HandlerFunc(h.HandleTemplate)))
 
 	srv := &http.Server{

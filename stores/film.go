@@ -14,7 +14,7 @@ type FilmNotFoundError struct {
 }
 
 func (e *FilmNotFoundError) Error() string {
-	return fmt.Sprintf("film not found: %s", s.Film, s.Message)
+	return fmt.Sprintf("film not found: %s", e.Message)
 }
 
 type FilmStore struct {
@@ -54,12 +54,12 @@ func (s *FilmStore) All() []models.Film {
 type findFunc func(film models.Film) bool
 
 func (s *FilmStore) Find(match findFunc) (models.Film, error) {
-	for _, film := range s.Fims {
+	for _, film := range s.Films {
 		if match(film) {
 			return film, nil
 		}
 	}
-	return models.Film{}, FilmNotFoundError{Message: "film not found in store"}
+	return models.Film{}, &FilmNotFoundError{Message: "film not found in store"}
 }
 
 func ByHash(hash string) findFunc {
