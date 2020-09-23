@@ -6,6 +6,7 @@
    - [ ] Add difficulty icon?
    - [ ] Current score.
    - [X] Give up option.
+   - [ ] New quiz mode, word connection.
 
 ** Improvements:
    - [ ] Store the film data in a database rather than just a json file.
@@ -18,4 +19,4 @@
    - [ ] Whiplash
    - [ ] Joker
    - [ ] Parasite
-   - [ ] 
+   - [ ]  
