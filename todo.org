@@ -5,7 +5,7 @@
 	 - Better to use a SQL database i.e. SQLite or just a json file?
    - [ ] Add difficulty icon?
    - [ ] Current score.
-   - [ ] Give up option.
+   - [X] Give up option.
 
 ** Improvements:
    - [ ] Store the film data in a database rather than just a json file.
@@ -15,3 +15,7 @@
 ** Films to add:
    - [ ] Shaun of the Dead
    - [ ] Dr Strangelove
+   - [ ] Whiplash
+   - [ ] Joker
+   - [ ] Parasite
+   - [ ] 
