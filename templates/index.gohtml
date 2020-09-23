@@ -23,6 +23,21 @@
 		});
 		req.send(json);
 	}
+	  function giveUp(question) {
+		let req = new XMLHttpRequest();
+		req.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				let resp = JSON.parse(this.responseText);
+				handleGiveUp(question, resp.FilmName);
+			}
+		}
+		req.open("POST", "/give-up/");
+		req.setRequestHeader('Content-Type', 'application/json');
+		let json = JSON.stringify({
+			FilmHash: question,
+		});
+		req.send(json);
+	  }
 	function correctAnswerAnimation(question) {
 		answerBox = document.getElementById(question.concat("_input"));
 		answerBtn = document.getElementById(question.concat("_input_btn"));
@@ -45,6 +60,12 @@
 		answerBox.placeholder = "Answer...";
 		answerBox.value = "";
 	}
+	  function handleGiveUp(question, film) {
+		  document.getElementById(question.concat("_input")).disabled = true;
+		  document.getElementById(question.concat("_input_btn")).disabled = true;
+		  document.getElementById(question.concat("_give-up_div")).hidden = false;
+		  document.getElementById(question.concat("_give-up_p")).innerText = film;
+	  }
 
 	window.onload = (event) => {
 		{{range .}} 
@@ -81,12 +102,18 @@
 				let guess = document.getElementById("{{.Hash}}_input").value;
 				checkGuess("{{.Hash}}", guess);
 			});
+
+		document.getElementById("{{.Hash}}_give-up_btn")
+			.addEventListener('click', function(event) {
+				giveUp("{{.Hash}}");
+			});
 	{{end}}
 	}
 	</script>
 </head>
 <body>
 	<h1>Final Scenes</h1>
+	<p>Can name these films from their final scenes?</p>
 	<div class="container">
 	{{range $index, $scene := .}} 
 	<div id="{{$scene.Hash}}_div">
@@ -107,6 +134,10 @@
 		<button id="{{$scene.Hash}}_hint2_btn">Show Hint #2</button>
 		<div id="{{$scene.Hash}}_hint2_div" hidden>
 			<img src="/static/{{$scene.ImageFile}}" style="width:50%;height:50%;" loading="lazy">
+		</div>
+		<button id="{{$scene.Hash}}_give-up_btn">Give Up</button>
+		<div id="{{$scene.Hash}}_give-up_div" hidden>
+			<p id="{{$scene.Hash}}_give-up_p"></p>
 		</div>
 	</div>
 	{{end}}

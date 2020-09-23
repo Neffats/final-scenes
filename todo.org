@@ -1,0 +1,21 @@
+* Final Scenes
+
+** Features:
+   - [ ] Stat collection on guesses.
+	 - Better to use a SQL database i.e. SQLite or just a json file?
+   - [ ] Add difficulty icon?
+   - [ ] Current score.
+   - [X] Give up option.
+
+** Improvements:
+   - [ ] Store the film data in a database rather than just a json file.
+   - [ ] Improve tools to add new films.
+   - [ ] Improve the UI / better looking.
+
+** Films to add:
+   - [ ] Shaun of the Dead
+   - [ ] Dr Strangelove
+   - [ ] Whiplash
+   - [ ] Joker
+   - [ ] Parasite
+   - [ ] 
