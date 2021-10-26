@@ -19,32 +19,74 @@ import (
 
 func main() {
 	url := flag.String("url", "", "Youtube url")
+	name := flag.String("name", "", "Film name")
+	startTime := flag.String("start", "", "Clip start timestamp. Format: hh:mm:ss")
+	endTime := flag.String("end", "", "Clip end timestamp. Format: hh:mm:ss")
+	year := flag.String("year", "", "Film year of release")
+	imageTime := flag.String("image", "", "Timestamp for image. Format: hh:mm:ss")
 	flag.Parse()
 
 	if *url == "" {
 		fmt.Println("missing arg: -url")
 		return
 	}
+	if *name == "" {
+		fmt.Println("missing arg: -name")
+		return
+	}
+	if *startTime == "" {
+		fmt.Println("missing arg: -start")
+		return
+	}
+	if *endTime == "" {
+		fmt.Println("missing arg: -end")
+		return
+	}
+	if *year == "" {
+		fmt.Println("missing arg: -year")
+		return
+	}
+	if *imageTime == "" {
+		fmt.Println("missing arg: -year")
+		return
+	}
 
-	err := DownloadVideo(*url, "video.mp4")
+	workingDir := os.Getenv("FINAL_SCENES_ADD_FILM_DIR")
+	if workingDir == "" {
+		fmt.Printf("missing environment variable: FINAL_SCENES_ADD_FILM_DIR")
+		return
+	}
+
+	if _, err := os.Stat(workingDir); os.IsNotExist(err) {
+		fmt.Printf("directory does not exist: %s", workingDir)
+		return
+	}
+
+	videoNameFull := fmt.Sprintf("%s/%s-full.mp4", workingDir, *name)
+	videoNameTrim := fmt.Sprintf("%s/%s-trim.mp4", workingDir, *name)
+	audioName := fmt.Sprintf("%s/%s.mp3", workingDir, *name)
+	imageName := fmt.Sprintf("%s/%s.jpg", workingDir, *name)
+
+	
+	err := DownloadVideo(*url, videoNameFull)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
 	}
 
-	err = TrimVideo("video.mp4", "trimmed.mp4", "00:01:00", "00:01:55")
+	err = TrimVideo(videoNameFull, videoNameTrim, *startTime, *endTime)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
 	}
 
-	err = ExtractAudio("trimmed.mp4", "audio.mp3")
+	err = ExtractAudio(videoNameTrim, audioName)
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
 	}
 
-	err = ExtractFrames("video.mp4", "frame.jpg", "00:01:52", "1")
+	err = ExtractFrames(videoNameFull, imageName, *imageTime, "1")
 	if err != nil {
 		fmt.Printf("%v", err)
 		return
@@ -82,6 +124,27 @@ func ExtractFrames(inputFilename string, outputFilename string, timestamp string
 	if err != nil {
 		return fmt.Errorf("error extracting frames from %s: %v", inputFilename, err)
 	}
+	return nil
+}
+
+func MoveFile(source string, destination string) error {
+	err := runCommand("mv", source, destination)
+	if err != nil {
+		return fmt.Errorf("error moving file: %v", err)
+	}
+
+	return nil
+}
+
+func DeleteFile(filename string) error {
+	if !strings.HasPrefix(filename, ".") {
+		return fmt.Errorf("error deleting file: only relative paths are allowed")
+	}
+	err := runCommand("rm", filename)
+	if err != nil {
+		return fmt.Errorf("error deleting file: %v", err)
+	}
+
 	return nil
 }
 
