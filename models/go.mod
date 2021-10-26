@@ -1,3 +1,3 @@
-module github.com/Neffats/final-scenes/models
+module models
 
 go 1.17
